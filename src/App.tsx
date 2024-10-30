@@ -1,39 +1,30 @@
-import React, { useEffect, useState } from 'react';
-import { Loader } from '@googlemaps/js-api-loader';
-import { MapPin } from 'lucide-react';
-import LocationSearch from './components/LocationSearch';
-import LocationList from './components/LocationList';
-import DistanceMatrix from './components/DistanceMatrix';
-import OptimalRoute from './components/OptimalRoute';
-import { findBestRoute } from './utils/routeOptimizer';
-import type { Location, DistanceResult, OptimizedRoute } from './types';
+import React, { useEffect, useState } from "react";
+import { Loader } from "@googlemaps/js-api-loader";
+import { MapPin } from "lucide-react";
+import LocationSearch from "./components/LocationSearch";
+import LocationList from "./components/LocationList";
+import DistanceMatrix from "./components/DistanceMatrix";
+import OptimalRoute from "./components/OptimalRoute";
+import { findBestRoute } from "./utils/routeOptimizer";
+import type { Location, DistanceResult, OptimizedRoute } from "./types";
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
 function distanceToOptimizedRoute(
   result: google.maps.DirectionsResult,
+  originalWaypoints: Location[],
+  origin: Location
 ): Location[] {
   const firstRoute = result.routes?.[0];
   if (!firstRoute) {
     return [];
   }
 
-  const sortedLocations: Location[] = firstRoute.legs.map((leg, index) => {
-    const loc: Location = {
-      id: leg.departure_time?.value.getDate().toString() || '1',
-      address: leg.start_address.toString(),
-      distance: leg.distance?.value || 0,
-      duration: leg.duration?.value || 0,
-      name: leg.start_address.split(',')[0],
-      placeId: result?.geocoded_waypoints?.[index].place_id ?? "N/A"
-    };
-
-    return loc;
-  });
-
-  console.log(result);
-
-  return sortedLocations;
+  const waypointOrder = firstRoute.waypoint_order;
+  const sortedLocations: Location[] = waypointOrder.map(
+    (index) => originalWaypoints[index]
+  );
+  return [origin, ...sortedLocations];
 }
 
 function App() {
@@ -47,8 +38,8 @@ function App() {
   useEffect(() => {
     const loader = new Loader({
       apiKey: GOOGLE_MAPS_API_KEY,
-      version: 'weekly',
-      libraries: ['places'],
+      version: "weekly",
+      libraries: ["places"],
     });
 
     loader.load().then(() => {
@@ -75,7 +66,7 @@ function App() {
         travelMode: google.maps.TravelMode.DRIVING,
       },
       (response, status) => {
-        if (status === 'OK' && response) {
+        if (status === "OK" && response) {
           const newResults: DistanceResult[] = [];
           response.rows.forEach((row, i) => {
             row.elements.forEach((element, j) => {
@@ -93,9 +84,11 @@ function App() {
 
           // Start route optimization
           setIsOptimizing(true);
-          console.log('matrix loc: ', locations);
+          // console.log("matrix loc: ", locations);
           findBestRoute(locations).then((bestRoute) => {
-            const bestLocationOrder: Location[] = bestRoute.order.map((index) => locations[index]);
+            const bestLocationOrder: Location[] = bestRoute.order.map(
+              (index) => locations[index]
+            );
             setOptimizedRoute(bestLocationOrder);
             setIsOptimizing(false);
           });
@@ -128,7 +121,12 @@ function App() {
     });
 
     response.then((resp) => {
-      const optRes = distanceToOptimizedRoute(resp);
+      // const send = [mainOrigin, ...wpts, mainOrigin].map((wp) => wp.placeId);
+      // console.log("waypoints send: ", send);
+      // const receivedWpts = resp.geocoded_waypoints?.map((w) => w.place_id);
+      // console.log("waypoints received: ", receivedWpts);
+      // console.log("response: ", resp);
+      const optRes = distanceToOptimizedRoute(resp, wpts, mainOrigin);
       setDirectionRoute(optRes);
     });
   }, [locations]);

@@ -1,6 +1,6 @@
-import React from 'react';
-import { Route } from 'lucide-react';
-import type { Location } from '../types';
+import React from "react";
+import { Route } from "lucide-react";
+import type { Location } from "../types";
 
 interface Props {
   locations: Location[];
@@ -15,9 +15,7 @@ export default function OptimalRoute({
   optimizedRoute,
   isOptimizing,
 }: Props) {
-  if (
-    locations.length < 2 || optimizedRoute.length < 2
-  ) {
+  if (locations.length < 2 || optimizedRoute.length < 2) {
     return null;
   }
 
@@ -44,28 +42,24 @@ export default function OptimalRoute({
                 {i + 1}
               </div>
               <div className="flex-1">
-                <h3 className="font-medium text-gray-900">
-                  {route.name}
-                </h3>
-                <p className="text-sm text-gray-500">
-                  {route.address}
-                </p>
+                <h3 className="font-medium text-gray-900">{route.name}</h3>
+                <p className="text-sm text-gray-500">{route.address}</p>
               </div>
             </div>
           ))}
-            <div className="flex items-center gap-2">
-              <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-sm">
-                {optimizedRoute.length + 1}
-              </div>
-              <div className="flex-1">
-                <h3 className="font-medium text-gray-900">
-                  Back to start ({optimizedRoute[0].name})
-                </h3>
-              </div>
+          <div className="flex items-center gap-2">
+            <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-sm">
+              {optimizedRoute.length + 1}
             </div>
+            <div className="flex-1">
+              <h3 className="font-medium text-gray-900">
+                Back to start ({optimizedRoute[0].name})
+              </h3>
+            </div>
+          </div>
         </div>
 
-        <div className="mt-4 pt-4 border-t border-gray-200">
+        {/* <div className="mt-4 pt-4 border-t border-gray-200">
           <div className="text-sm text-gray-600">
             <p>
               Total Distance:{' '}
@@ -80,7 +74,7 @@ export default function OptimalRoute({
               </span>
             </p>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

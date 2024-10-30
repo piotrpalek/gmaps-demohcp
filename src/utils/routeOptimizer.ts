@@ -1,4 +1,4 @@
-import type { Location, OptimizedRoute } from '../types';
+import type { Location, OptimizedRoute } from "../types";
 
 // Nearest neighbor algorithm to solve TSP
 function findBestOrder(distances: number[][]): number[] {
@@ -29,7 +29,7 @@ export async function findBestRoute(
   locations: Location[]
 ): Promise<OptimizedRoute> {
   if (locations.length < 2) {
-    throw new Error('Need at least 2 locations to optimize route');
+    throw new Error("Need at least 2 locations to optimize route");
   }
 
   // First, get the distance matrix for all locations
@@ -45,14 +45,14 @@ export async function findBestRoute(
         travelMode: google.maps.TravelMode.DRIVING,
       },
       async (response, status) => {
-        if (status === 'OK' && response) {
+        if (status === "OK" && response) {
           // Convert response to distance matrix
           const distances: number[][] = response.rows.map((row) =>
             row.elements.map((element) => element.distance.value)
           );
 
-          console.log('distance matrix: ', distances);
-          console.log('resp: ', response);
+          // console.log('distance matrix: ', distances);
+          // console.log('resp: ', response);
 
           // Find optimal order using nearest neighbor algorithm
           const bestOrder = findBestOrder(distances);
@@ -75,7 +75,7 @@ export async function findBestRoute(
                     travelMode: google.maps.TravelMode.DRIVING,
                   },
                   (result, directionsStatus) => {
-                    if (directionsStatus === 'OK' && result) {
+                    if (directionsStatus === "OK" && result) {
                       resolveDir(result);
                     } else {
                       rejectDir(
@@ -93,10 +93,10 @@ export async function findBestRoute(
             resolve({
               order: bestOrder,
               totalDistance: route.legs
-                .reduce((acc, leg) => acc + leg.distance.text + ' + ', '')
+                .reduce((acc, leg) => acc + leg.distance?.text + " + ", "")
                 .slice(0, -3),
               totalDuration: route.legs
-                .reduce((acc, leg) => acc + leg.duration.text + ' + ', '')
+                .reduce((acc, leg) => acc + leg.duration?.text + " + ", "")
                 .slice(0, -3),
             });
           } catch (error) {
